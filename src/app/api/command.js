@@ -8,6 +8,6 @@ Modified By: Isamu Isozaki
 
 import api from './index';
 
-export function postCommand({ command } = {}) {
+export function postCommand(command) {
     return api.post('/v1/command', { command });
 }
