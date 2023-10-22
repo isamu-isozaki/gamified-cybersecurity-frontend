@@ -9,8 +9,7 @@ import './index.css';
 import App from './App';
 import { Provider } from 'react-redux'
 import * as serviceWorker from './serviceWorker';
-import store from 'app/store';
-require('dotenv').config();
+import store from './app/store';
 
 // eslint-disable-next-line react/no-deprecated
 ReactDOM.render(
