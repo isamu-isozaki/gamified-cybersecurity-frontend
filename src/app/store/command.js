@@ -8,7 +8,7 @@ Modified By: modifier
 
 import {
     postCommand,
-} from 'app/api/command';
+} from '../api/command';
 import _ from 'lodash'
 export const SEND_COMMAND_SUCCESS = 'SEND_COMMAND_SUCCESS';
 export const COMMAND_FAIL = 'COMMAND_FAIL';

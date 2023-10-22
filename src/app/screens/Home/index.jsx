@@ -1,7 +1,7 @@
 //Based on https://github.com/mmazzarolo/react-native-login-animation-example
 import React, { useState } from "react";
 
-import { sendCommand } from 'app/store/command';
+import { sendCommand } from '../../store/command';
 import { connect } from 'react-redux';
 import { Flex, Spacer, Divider, Input, Button  } from "@chakra-ui/react";
 import PropTypes from 'prop-types';

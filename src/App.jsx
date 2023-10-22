@@ -9,7 +9,9 @@ import Home from './app/screens/Home';
  */
 function App() {
   return (
-    <Home/>
+    <div className="App">
+      <Home />
+    </div>
   );
 }
 
