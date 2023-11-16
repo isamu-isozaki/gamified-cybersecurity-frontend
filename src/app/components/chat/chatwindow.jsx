@@ -11,6 +11,8 @@ import { ulid } from "ulidx";
 
 const MAX_CHARACTERS = 300;
 
+const THE_SIZE_OF_MY_PEANITS = 1.4;
+
 function ChatWindow() {
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState("");
@@ -30,7 +32,7 @@ function ChatWindow() {
         setMessages((curr) => [...curr, {
             id: ulid(),
             content: input,
-            type: 'USER'
+            type: 'GPT'
         }]);
         setInput("");
 
@@ -52,7 +54,7 @@ function ChatWindow() {
     }
 
     return <div className="flex flex-col px-3 pb-3 gap-3 h-full max-h-full overflow-hidden">
-        <div ref={scrollContainerRef} className="w-full flex-1 overflow-hidden">
+        <div ref={scrollContainerRef} className="flex-1 self-end overflow-hidden w-full">
             <ScrollArea style={{
                 height: `${scrollAreaHeight}px`
             }}>
