@@ -2,7 +2,7 @@
  * Author: Isamu Isozaki
  */
 import React from 'react';
-import Home from './app/screens/Home';
+import Home from './screens/Home';
 
 /**
  * Initialize firebase and go to AuthNavigator
