@@ -3,7 +3,8 @@
  */
 import React from 'react';
 import Home from './app/screens/Home';
-import Terminal from './app/screens/Terminal/terminal.jsx'
+import TerminalGCS from "./app/components/TerminalGCS";
+import Console from './app/screens/Console';
 
 /**
  * Initialize firebase and go to AuthNavigator
@@ -11,7 +12,7 @@ import Terminal from './app/screens/Terminal/terminal.jsx'
 function App() {
   return (
     <div className="App">
-      <Terminal />
+      <Console />
     </div>
   );
 }
