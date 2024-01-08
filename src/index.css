@@ -9,6 +9,7 @@ body {
   background-color: #fff;
   height: 100%;
 }
+
 .title {
   font-size: 20pt;
 }
@@ -17,8 +18,17 @@ body {
 }
 .container {
   margin-top: 40px;
-  height: 100%,
+  height: 100%
 }
 .row {
   margin-top: 10px;
+}
+
+.App {
+  text-align: center;
+  background-color: #301155;
+
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }

@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { sendCommand } from '../../store/command.js';
 import { connect } from 'react-redux';
 import '../../../global.css';
+import './terminalGCS.css';
 
 function TerminalGCS({
                          commands,
@@ -17,11 +18,10 @@ function TerminalGCS({
     }
 
     return (
-        <div>
-            <h1>Terminal</h1>
+        <div className="TerminalGCS">
             <div className="w-1/2 bg-black h-96">
                 <div className="overflow-y-auto max-h-full">
-                    {commands.map((commnand, idx) => (
+                    {commands.map((command, idx) => (
                         <div className="text-white" key={idx}>
                             {terminalOutputs[idx]}
                         </div>
