@@ -19,8 +19,8 @@ function TerminalGCS({
 
     return (
         <div className="TerminalGCS">
-            <div className="w-1/2 bg-black h-96">
-                <div className="overflow-y-auto max-h-full">
+            <div className="w-1/2 bg-black h-full w-full">
+                <div className="overflow-y-auto max-h-full w-full">
                     {commands.map((command, idx) => (
                         <div className="text-white" key={idx}>
                             {terminalOutputs[idx]}

@@ -1,4 +1,5 @@
 import './console.css';
+import ChatWindow from "../../components/chat/chatwindow";
 import {TerminalContainer} from '../../components/DevinTerminal';
 
 import React, { useState } from "react";
@@ -55,7 +56,7 @@ function ChatContainer({chatWidth}) {
 
     return (
         <div className="ChatContainer" style={{ width: chatWidth}}>
-            HELLO, IT ME
+            <ChatWindow />
         </div>
     );
 }
