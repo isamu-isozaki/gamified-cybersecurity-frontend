@@ -13,6 +13,7 @@ import sw2EyeImage from '../../assets/sw2_eye.png';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Flag, Network, Settings, SendHorizonal } from "lucide-react";
 
 function Console({
@@ -49,9 +50,38 @@ function Console({
     );
 }
 
-function TitleBar() {
-    const [flagInputVisible, setFlagInputVisible] = useState(false);
+function FlagInput({onSubmit}) {
     const [input, setInput] = useState("");
+    
+    function handleChange(e) {
+        setInput(e.target.value);
+    }
+
+    function handleSubmit() {
+        onSubmit(input);
+        setInput("");
+    }
+
+    return (
+    <Popover>
+        <PopoverTrigger asChild>
+            <Button variant="ghost" size="icon">
+                <Flag />
+            </Button>
+        </PopoverTrigger>
+        <PopoverContent>
+            <div className="flex w-full max-w-sm items-center space-x-2 space-x-reverse">
+                <Button onClick={handleSubmit} variant="ghost" size="icon">
+                    <SendHorizonal />
+                </Button>
+                <Input value={input} onInput={handleChange} />
+            </div>
+        </PopoverContent>
+    </Popover>
+    )
+}
+
+function TitleBar() {
     const [stage, setStage] = useState(0);
     const stages = {
         0: "egg",
@@ -62,17 +92,11 @@ function TitleBar() {
         setFlagInputVisible((flagInputVisible) => !flagInputVisible);
     }
 
-    function sendFlag() {
+    function sendFlag(input) {
         if (input.trim() === stages[stage])
         {
             setStage((stage) => stage + 1);
-        }
-        
-        setInput("");
-    }
-
-    function handleChange(e) {
-        setInput(e.target.value);
+        }        
     }
 
     return (
@@ -86,16 +110,7 @@ function TitleBar() {
                 <Button variant="ghost" size="icon">
                     <Network />
                 </Button>
-                <Button onClick={toggleFlagInput} variant="ghost" size="icon">
-                    <Flag />
-                </Button>
-                {flagInputVisible && 
-                <div className="flex w-full max-w-sm items-center space-x-2 space-x-reverse">
-                    <Button onClick={sendFlag} variant="ghost" size="icon">
-                        <SendHorizonal />
-                    </Button>
-                    <Input value={input} onInput={handleChange} />
-                </div>}
+                <FlagInput onSubmit={sendFlag} />
             </div>
         </div>
     );
