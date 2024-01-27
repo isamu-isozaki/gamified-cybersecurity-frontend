@@ -10,6 +10,11 @@ import {sendCommand} from "../../store/command";
 import sw1EyeImage from '../../assets/sw1_eye.png';
 import sw2EyeImage from '../../assets/sw2_eye.png';
 
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Progress } from "@/components/ui/progress";
+import { Flag, Network, Settings, SendHorizonal } from "lucide-react";
+
 function Console({
                      commands,
                      terminalOutputs,
@@ -45,9 +50,53 @@ function Console({
 }
 
 function TitleBar() {
+    const [flagInputVisible, setFlagInputVisible] = useState(false);
+    const [input, setInput] = useState("");
+    const [stage, setStage] = useState(0);
+    const stages = {
+        0: "egg",
+        1: "critter" 
+    };
+
+    function toggleFlagInput() {
+        setFlagInputVisible((flagInputVisible) => !flagInputVisible);
+    }
+
+    function sendFlag() {
+        if (input.trim() === stages[stage])
+        {
+            setStage((stage) => stage + 1);
+        }
+        
+        setInput("");
+    }
+
+    function handleChange(e) {
+        setInput(e.target.value);
+    }
+
     return (
-        <div className="TitleBar">
-            <h3> Title bar for ... reasons </h3>
+        <div className="TitleBar flex flex-row items-center">
+            <div className="basis-1/4"><Progress value={(stage / Object.keys(stages).length) * 100}/></div>
+            <div className="basis-1/2"><h3> Title bar for ... reasons </h3></div>
+            <div className="basis-1/4 flex flex-row-reverse">
+                <Button variant="ghost" size="icon">
+                    <Settings />
+                </Button>
+                <Button variant="ghost" size="icon">
+                    <Network />
+                </Button>
+                <Button onClick={toggleFlagInput} variant="ghost" size="icon">
+                    <Flag />
+                </Button>
+                {flagInputVisible && 
+                <div className="flex w-full max-w-sm items-center space-x-2 space-x-reverse">
+                    <Button onClick={sendFlag} variant="ghost" size="icon">
+                        <SendHorizonal />
+                    </Button>
+                    <Input value={input} onInput={handleChange} />
+                </div>}
+            </div>
         </div>
     );
 }
