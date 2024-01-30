@@ -32,7 +32,7 @@ function ChatWindow() {
         setMessages((curr) => [...curr, {
             id: ulid(),
             content: input,
-            type: 'GPT'
+            type: 'USER'
         }]);
         setInput("");
 

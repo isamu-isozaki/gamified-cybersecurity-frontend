@@ -83,10 +83,10 @@ function FlagInput({onSubmit}) {
 
 function TitleBar() {
     const [stage, setStage] = useState(0);
-    const stages = {
-        0: "egg",
-        1: "critter" 
-    };
+    const stages = [
+        "egg",
+        "critter" 
+    ];
 
     function toggleFlagInput() {
         setFlagInputVisible((flagInputVisible) => !flagInputVisible);
