@@ -15,11 +15,9 @@ import store from './app/store';
 // eslint-disable-next-line react/no-deprecated
 ReactDOM.render(
   <React.StrictMode>
-    <ChakraProvider>
       <Provider store={store}>
         <App />
       </Provider>
-    </ChakraProvider>
   </React.StrictMode>,
   document.getElementById('root')
 );
