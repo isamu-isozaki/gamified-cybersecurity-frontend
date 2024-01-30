@@ -5,6 +5,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { ChakraProvider } from "@chakra-ui/react"
+import './app/styles/globals.css';
 import './index.css';
 import App from './App';
 import { Provider } from 'react-redux'
@@ -14,11 +15,9 @@ import store from './app/store';
 // eslint-disable-next-line react/no-deprecated
 ReactDOM.render(
   <React.StrictMode>
-    <ChakraProvider>
       <Provider store={store}>
         <App />
       </Provider>
-    </ChakraProvider>
   </React.StrictMode>,
   document.getElementById('root')
 );

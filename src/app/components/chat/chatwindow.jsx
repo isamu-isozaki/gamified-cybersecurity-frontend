@@ -1,7 +1,7 @@
-import { Button } from "../ui/button";
-import { ScrollArea } from "../ui/scroll-area";
-import { Textarea } from "../ui/textarea";
-import { cn } from "../../lib/utils";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { SendHorizontal } from "lucide-react";
 import { useRef } from "react";
