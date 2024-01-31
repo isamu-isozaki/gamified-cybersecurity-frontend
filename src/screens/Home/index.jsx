@@ -9,13 +9,14 @@ import TerminalGCS from "../../components/TerminalGCS";
 function Home({
   commands,
   terminalOutputs,
-  sendCommand
+  sendCommand, 
+  socket
 }){
   const [inputCommand, setInputCommand] = useState("");
   console.log(inputCommand)
   return (
     <div className="home">
-       <TerminalGCS />
+       <TerminalGCS socket={socket} />
     </div>
   );
 }
