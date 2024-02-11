@@ -13,14 +13,17 @@ function TerminalGCS({
     const handleCommand = async (terminalInput) => {
         socket.emit('command', terminalInput);
       }
-      
-      useEffect(() => {
-        socket.on('commandResult', (result) => {
-            console.log(result);
-          setTerminalOutput(terminalOutput.concat(result));
-          console.log(terminalOutput);
-        });
-      });
+
+
+    useEffect(() => {
+    socket.on('commandResult', (result) => {
+        console.log(result);
+        setTerminalOutput(terminalOutput.concat(result));
+        console.log(terminalOutput);
+
+        return () => socket.off()
+    });
+    }, [socket]);
 
       return (
         <div>

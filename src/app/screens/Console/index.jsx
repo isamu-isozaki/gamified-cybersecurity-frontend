@@ -15,11 +15,13 @@ import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Flag, Network, Settings, SendHorizonal } from "lucide-react";
+import { socket } from '../../../App';
 
 function Console({
                      commands,
                      terminalOutputs,
-                     sendCommand
+                     sendCommand,
+                     socket
                  }) {
     const [chatButtonImage, setChatButtonImage] = useState(sw2EyeImage)
     const [chatWidth, setChatWidth] = useState('30%');
@@ -120,7 +122,7 @@ function ChatContainer({chatWidth}) {
 
     return (
         <div className="ChatContainer" style={{ width: chatWidth}}>
-            <ChatWindow />
+            <ChatWindow socket={ socket }/>
         </div>
     );
 }
