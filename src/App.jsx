@@ -14,7 +14,6 @@ function App() {
   return (
     <div className="App">
       <Console socket={socket}/>
-      {/* <Home socket={socket} /> */}
     </div>
   );
 }

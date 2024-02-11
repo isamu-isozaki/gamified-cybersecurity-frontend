@@ -17,12 +17,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Flag, Network, Settings, SendHorizonal } from "lucide-react";
 import { socket } from '../../../App';
 
-function Console({
-                     commands,
-                     terminalOutputs,
-                     sendCommand,
-                     socket
-                 }) {
+function Console({ socket }) {
     const [chatButtonImage, setChatButtonImage] = useState(sw2EyeImage)
     const [chatWidth, setChatWidth] = useState('30%');
     const [terminalWidth, setTerminalWidth] = useState('70%');
@@ -45,7 +40,7 @@ function Console({
                 <TitleBar />
                 <div className="ContainerContainer">
                     <ChatContainer chatWidth={chatWidth}/>
-                    <TerminalContainer terminalWidth={terminalWidth} chatButtonImage={chatButtonImage} toggleChatWidth={toggleChatWidth}/>
+                    <TerminalContainer terminalWidth={terminalWidth} chatButtonImage={chatButtonImage} toggleChatWidth={toggleChatWidth} socket={socket}/>
                 </div>
             </div>
         </>
