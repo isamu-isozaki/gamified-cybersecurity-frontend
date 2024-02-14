@@ -3,7 +3,7 @@ import ChatWindow from "../../components/chat/chatwindow";
 import {TerminalContainer} from '../../components/DevinTerminal';
 import MachineControlPanel from '../../components/MachineControlPanel/MachineControlPanel';
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import PropTypes from 'prop-types';
 import {connect} from "react-redux";
 import {sendCommand} from "../../store/command";
@@ -84,39 +84,57 @@ function FlagInput({onSubmit}) {
     )
 }
 
-function MachineRow( { name, status} )
+function MachineRow( { Image, State} )
 {
     return (
         <TableRow>
-            <TableCell className="font-medium">{name}</TableCell>
-            <TableCell>{status}</TableCell>
+            <TableCell className="font-medium">{Image}</TableCell>
+            <TableCell>{State}</TableCell>
         </TableRow>
     )
 }
 
 function MachineControl() {
     const [machines, setMachines] = useState([]);
+    const [isRestarting, setIsRestarting] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
     const getMachinesList = () => {
-        //TODO: Read all images into list of items with two values (machine name, machine status)
-        return [
-            { name: "CPU1", status: "Running"},
-            { name: "CPU2", status: "Stopped"}
-        ]
+        setIsLoading(true);
+        fetch ("http://backend:10000/v1/command/dockerlist").then(async (response) => {
+            if (response.ok) {
+                return response.json();
+            }
+            else {
+                throw new Error(await response.json());
+            }
+        }).then((machineList) => {
+            setMachines(machineList.payload);
+        }).catch((error) => {
+            console.error(error);
+        }).finally(() => {
+            setIsLoading(false);
+        })
     }
 
-    const updateMachines = () => {
-        setMachines(() => getMachinesList());
-    }
+    useEffect(() => {
+        getMachinesList();
+    }, [])
 
     const rebootMachines = () => {
-        //TODO: reboot docker container
+        setIsRestarting(true);
+        fetch ("http://backend:10000/v1/command/dockerrestart", {
+            method: "POST"
+        }).finally(() => {
+            getMachinesList();
+            setIsRestarting(false)
+        })
     }
 
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <Button variant="ghost" size="icon" onClick={updateMachines}>
+                <Button variant="ghost" size="icon" onClick={getMachinesList}>
                     <Network />
                 </Button>
             </DialogTrigger>
@@ -124,6 +142,7 @@ function MachineControl() {
                 <DialogHeader>
                     <DialogTitle>Machine Status</DialogTitle>
                 </DialogHeader>
+                {isLoading ? <span>Loading...</span> : 
                 <Table>
                     <TableHeader>
                         <TableRow>
@@ -134,9 +153,9 @@ function MachineControl() {
                     <TableBody>
                         {machines.map((machine) => <MachineRow {...machine} />)}
                     </TableBody>
-                </Table>
+                </Table>}
                 <div className="flex flex-row grow justify-center space-x-2">
-                    <Button className="basis-1" onClick={rebootMachines}>Reboot Machines</Button>
+                    <Button className="basis-1" onClick={rebootMachines} disabled={isRestarting}>{isRestarting ? "Loading..." : "Reboot Machines"}</Button>
                 </div>
             </DialogContent>
         </Dialog>
