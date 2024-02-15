@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import { sendCommand } from '../../app/store/command';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import TerminalGCS from "../../components/TerminalGCS";
 
 function Home({
   commands,
@@ -16,7 +15,7 @@ function Home({
   console.log(inputCommand)
   return (
     <div className="home">
-       <TerminalGCS socket={socket} />
+        <h1>Home?</h1>
     </div>
   );
 }

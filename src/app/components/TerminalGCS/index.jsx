@@ -1,30 +1,34 @@
-import React, { useState } from "react";
-import PropTypes from 'prop-types';
-import { sendCommand } from '../../store/command.js';
-import { connect } from 'react-redux';
+import React, { useState, useEffect } from "react";
 import '../../../global.css';
 import './terminalGCS.css';
 
-function TerminalGCS({
-                         commands,
-                         terminalOutputs,
-                         sendCommand
-                     }) {
+function TerminalGCS({socket}) {
     const [inputCommand, setInputCommand] = useState("");
+    const [terminalOutput, setTerminalOutput] = useState([]);
 
     const handleCommand = async (terminalInput) => {
-        sendCommand(terminalInput);
-        console.log(terminalInput);
+        socket.emit('command', terminalInput);
     }
+
+    useEffect(() => {
+        const handleCommandOutput = (result) => {
+            console.log(result);
+            setTerminalOutput(terminalOutput.concat(result));
+            console.log(terminalOutput);
+        }
+        socket.on('commandResult', handleCommandOutput);
+
+        return () => socket.off('commandResult', handleCommandOutput);
+    }, [socket]);
 
     return (
         <div className="TerminalGCS">
             <div className="w-1/2 bg-black h-full w-full">
                 <div className="overflow-y-auto max-h-full w-full">
-                    {commands.map((command, idx) => (
-                        <div className="text-white" key={idx}>
-                            {terminalOutputs[idx]}
-                        </div>
+                    {terminalOutput.map((commnand, idx) => (
+                    <div className="text-white" key={idx}>
+                    {terminalOutput[idx]}
+                    </div>
                     ))}
                 </div>
                 <div className="flex">
@@ -46,18 +50,4 @@ function TerminalGCS({
     );
 }
 
-TerminalGCS.propTypes = {
-    commands: PropTypes.array,
-    terminalOutputs: PropTypes.array,
-    sendCommand: PropTypes.func,
-}
-
-const mapStateToProps = (state) => {
-    return {commands: state.command.commands, terminalOutputs: state.command.terminalOutputs}
-}
-export default connect(
-    mapStateToProps,
-    {
-        sendCommand
-    },
-)(TerminalGCS);
+export default TerminalGCS;

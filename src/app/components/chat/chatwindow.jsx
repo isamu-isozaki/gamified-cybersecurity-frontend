@@ -13,7 +13,7 @@ const MAX_CHARACTERS = 300;
 
 const THE_SIZE_OF_MY_PEANITS = 1.4;
 
-function ChatWindow() {
+function ChatWindow({ socket }) {
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState("");
     const [scrollAreaHeight, setScrollAreaHeight] = useState(0);
@@ -37,7 +37,21 @@ function ChatWindow() {
         setInput("");
 
         // TODO send to ChatGPT
-    } 
+        socket.emit("newMessage", input);
+    }
+
+    useEffect(() => {
+        const receiveMessageHandler = (data) => {
+            setMessages((curr) => [...curr, {
+                id: ulid(),
+                content: data,
+                type: 'GPT'
+            }]);
+        };
+        socket.on("messageResponse", receiveMessageHandler);
+
+        return () => socket.off("messageResponse", receiveMessageHandler);
+    }, [socket]);
 
     const handleChange = (e) => {
         if (e.target.value.trim().length > MAX_CHARACTERS)

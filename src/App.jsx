@@ -13,8 +13,7 @@ export const socket = io(URL);
 function App() {
   return (
     <div className="App">
-      <Console />
-      <Home socket={socket} />
+      <Console socket={socket}/>
     </div>
   );
 }
