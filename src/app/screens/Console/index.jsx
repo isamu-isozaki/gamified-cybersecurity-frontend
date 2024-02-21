@@ -18,10 +18,16 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Flag, Network, Settings, SendHorizonal } from "lucide-react";
-import { socket } from '../../../App';
 import { getBackendUrl } from '../../../lib/utils';
+import { io } from 'socket.io-client';
+import { useNavigate, useParams } from 'react-router-dom';
 
-function Console({ socket }) {
+const URL = getBackendUrl("/");
+
+const socket = io(URL);
+
+function Console() {
+    const { labid } = useParams();
     const [chatButtonImage, setChatButtonImage] = useState(sw2EyeImage)
     const [chatWidth, setChatWidth] = useState('30%');
     const [terminalWidth, setTerminalWidth] = useState('70%');
@@ -160,6 +166,44 @@ function MachineControl() {
     )
 }
 
+function LabSettings({onSubmit}) {
+    const navigate = useNavigate();
+    const [input, setInput] = useState("");
+    
+    function handleChange(e) {
+        setInput(e.target.value);
+    }
+
+    function quitLab() {
+        //TODO: save progress & shutdown container
+        navigate("/");
+    }
+
+    function restartLab() {
+        //TODO: backend call to restart lab
+    }
+
+    return (
+    <Popover>
+        <PopoverTrigger asChild>
+            <Button variant="ghost" size="icon">
+                <Settings />
+            </Button>
+        </PopoverTrigger>
+        <PopoverContent>
+            <div className="flex flex-col gap-y-4">
+                <Button onClick={restartLab} >
+                    Restart Lab
+                </Button>
+                <Button onClick={quitLab} >
+                    Quit Lab
+                </Button>
+            </div>
+        </PopoverContent>
+    </Popover>
+    )
+}
+
 function TitleBar() {
     const [stage, setStage] = useState(0);
     const stages = [
@@ -183,9 +227,7 @@ function TitleBar() {
             <div className="basis-1/4"><Progress value={(stage / Object.keys(stages).length) * 100}/></div>
             <div className="basis-1/2"><h3> H.E.I.S.E.N.B.E.R.G. </h3></div>
             <div className="basis-1/4 flex flex-row-reverse">
-                <Button variant="ghost" size="icon">
-                    <Settings />
-                </Button>
+                <LabSettings />
                 <MachineControl />
                 <FlagInput onSubmit={sendFlag} />
             </div>
