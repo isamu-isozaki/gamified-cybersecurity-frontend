@@ -4,18 +4,18 @@ import React, { useState } from "react";
 import { sendCommand } from '../../app/store/command';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import TerminalGCS from "../../components/TerminalGCS";
 
 function Home({
   commands,
   terminalOutputs,
-  sendCommand
+  sendCommand, 
+  socket
 }){
   const [inputCommand, setInputCommand] = useState("");
   console.log(inputCommand)
   return (
     <div className="home">
-       <TerminalGCS />
+        <h1>Home?</h1>
     </div>
   );
 }

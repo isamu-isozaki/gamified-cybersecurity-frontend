@@ -1,11 +1,11 @@
 import './devinTerminal.css';
 import TerminalGCS from "../TerminalGCS";
 
-function TerminalContainer({terminalWidth, chatButtonImage, toggleChatWidth}) {
+function TerminalContainer({terminalWidth, chatButtonImage, toggleChatWidth, socket}) {
     return (
         <div className="TerminalContainer" style={{width: terminalWidth}}>
             <TerminalSelector chatButtonImage={chatButtonImage} toggleChatWidth={toggleChatWidth}/>
-            <TerminalGCS />
+            <TerminalGCS socket={socket}/>
         </div>
     );
 }

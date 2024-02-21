@@ -6,10 +6,13 @@ import TerminalGCS from "./app/components/TerminalGCS";
 import Console from './app/screens/Console';
 import LabSelect from './app/screens/LabSelect';
 import LabSelectContainer from "./app/screens/LabSelect";
+import Home from './screens/Home';
+import io from 'socket.io-client';
 
-/**
- * Initialize firebase and go to AuthNavigator
- */
+const URL = process.env.NODE_ENV === 'production' ? undefined : 'http://localhost:10000';
+
+export const socket = io(URL);
+
 function App() {
     const testLabList = [
         {
@@ -39,7 +42,7 @@ function App() {
     if (selectedLab != null) {
         return (
             <div className="App">
-                <Console/>
+                <Console socket={socket}/>
             </div>
         );
     } else {
