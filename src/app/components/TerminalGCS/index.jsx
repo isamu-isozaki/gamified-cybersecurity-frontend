@@ -1,9 +1,14 @@
-import React, { useState } from "react";
+import React, {useRef, useState} from "react";
 import PropTypes from 'prop-types';
 import { sendCommand } from '../../store/command.js';
 import { connect } from 'react-redux';
 import '../../../global.css';
 import './terminalGCS.css';
+import {ulid} from "ulidx";
+
+//find better solution?
+import { ScrollArea } from "@/components/ui/scroll-area";
+import Message from "@/components/chat/message";
 
 function TerminalGCS({
                          commands,
@@ -11,36 +16,49 @@ function TerminalGCS({
                          sendCommand
                      }) {
     const [inputCommand, setInputCommand] = useState("");
+    const [messages, setMessages] = useState([]);
+    const [scrollAreaHeight, setScrollAreaHeight] = useState(500);
+    const TerminalChatRef = useRef();
+
+    const scrollToBottom = () => {
+        TerminalChatRef.current.scrollTop = TerminalChatRef.current.scrollHeight;
+    }
 
     const handleCommand = async (terminalInput) => {
         sendCommand(terminalInput);
         console.log(terminalInput);
+
+        setMessages((curr) => [...curr, {
+            id: ulid(),
+            content: `$ ${terminalInput}`,
+            type: 'USER'
+        }]);
+
+        scrollToBottom();
     }
 
     return (
-        <div className="TerminalGCS">
-            <div className="w-1/2 bg-black h-full w-full">
-                <div className="overflow-y-auto max-h-full w-full">
-                    {commands.map((command, idx) => (
-                        <div className="text-white" key={idx}>
-                            {terminalOutputs[idx]}
-                        </div>
+        <div className="TerminalGCS bg-black h-full w-full flex-col">
+            <div className="TerminalChat" ref={TerminalChatRef}>
+                <ul>
+                    {messages.map((message, index) => (
+                        <li key={index}>{message.content}</li>
                     ))}
-                </div>
-                <div className="flex">
-                    <span className="text-white pr-2">$</span>
-                    <input type="text"
-                           value={inputCommand}
-                           onChange={(e) => setInputCommand(e.target.value)}
-                           onKeyDown={(e) => {
-                               if (e.key === 'Enter') {
-                                   handleCommand(inputCommand);
-                                   setInputCommand("");
-                               }
-                           }}
-                           className="w-full bg-transparent text-white border-none focus:outline-none"
-                    />
-                </div>
+                </ul>
+            </div>
+            <div className="InputBox">
+                <span className="text-white pr-2">$</span>
+                <input type="text"
+                       value={inputCommand}
+                       onChange={(e) => setInputCommand(e.target.value)}
+                       onKeyDown={(e) => {
+                           if (e.key === 'Enter') {
+                               handleCommand(inputCommand);
+                               setInputCommand("");
+                           }
+                       }}
+                       className="w-full bg-transparent text-white border-none focus:outline-none"
+                />
             </div>
         </div>
     );
