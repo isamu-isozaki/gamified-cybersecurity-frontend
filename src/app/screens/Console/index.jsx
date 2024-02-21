@@ -19,6 +19,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Flag, Network, Settings, SendHorizonal } from "lucide-react";
 import { socket } from '../../../App';
+import { getBackendUrl } from '../../../lib/utils';
 
 function Console({ socket }) {
     const [chatButtonImage, setChatButtonImage] = useState(sw2EyeImage)
@@ -98,7 +99,7 @@ function MachineControl() {
 
     const getMachinesList = () => {
         setIsLoading(true);
-        fetch ("http://backend:10000/v1/command/dockerlist").then(async (response) => {
+        fetch (getBackendUrl("/v1/command/dockerlist")).then(async (response) => {
             if (response.ok) {
                 return response.json();
             }
@@ -120,7 +121,7 @@ function MachineControl() {
 
     const rebootMachines = () => {
         setIsRestarting(true);
-        fetch ("http://backend:10000/v1/command/dockerrestart", {
+        fetch (getBackendUrl("/v1/command/dockerrestart"), {
             method: "POST"
         }).finally(() => {
             getMachinesList();
