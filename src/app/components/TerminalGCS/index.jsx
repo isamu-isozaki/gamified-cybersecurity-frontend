@@ -1,9 +1,21 @@
-import React, { useState, useEffect } from "react";
+import React, {useRef, useState, useEffect} from "react";
 import '../../../global.css';
 import './terminalGCS.css';
+import {ulid} from "ulidx";
+
+//find better solution?
+import { ScrollArea } from "@/components/ui/scroll-area";
+import Message from "@/components/chat/message";
 
 function TerminalGCS({socket}) {
     const [inputCommand, setInputCommand] = useState("");
+    const [messages, setMessages] = useState([]);
+    const [scrollAreaHeight, setScrollAreaHeight] = useState(500);
+    const TerminalChatRef = useRef();
+
+    const scrollToBottom = () => {
+        TerminalChatRef.current.scrollTop = TerminalChatRef.current.scrollHeight;
+    }
     const [terminalOutput, setTerminalOutput] = useState([]);
 
     const handleCommand = async (terminalInput) => {
@@ -19,6 +31,14 @@ function TerminalGCS({socket}) {
         socket.on('commandResult', handleCommandOutput);
 
         return () => socket.off('commandResult', handleCommandOutput);
+
+        setMessages((curr) => [...curr, {
+            id: ulid(),
+            content: `$ ${terminalInput}`,
+            type: 'USER'
+        }]);
+
+        scrollToBottom();
     }, [socket]);
 
     return (
