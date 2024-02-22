@@ -20,17 +20,6 @@ function TerminalGCS({socket}) {
 
     const handleCommand = async (terminalInput) => {
         socket.emit('command', terminalInput);
-    }
-
-    useEffect(() => {
-        const handleCommandOutput = (result) => {
-            console.log(result);
-            setTerminalOutput(terminalOutput.concat(result));
-            console.log(terminalOutput);
-        }
-        socket.on('commandResult', handleCommandOutput);
-
-        return () => socket.off('commandResult', handleCommandOutput);
 
         setMessages((curr) => [...curr, {
             id: ulid(),
@@ -39,32 +28,46 @@ function TerminalGCS({socket}) {
         }]);
 
         scrollToBottom();
+    }
+
+    useEffect(() => {
+        const handleCommandOutput = (result) => {
+            console.log(result);
+            setTerminalOutput(terminalOutput.concat(result));
+            setMessages((curr) => [...curr, {
+                id: ulid(),
+                content: `> ${result}`,
+                type: 'USER'
+            }]);
+            console.log(terminalOutput);
+        }
+        socket.on('commandResult', handleCommandOutput);
+
+        return () => socket.off('commandResult', handleCommandOutput);
     }, [socket]);
 
     return (
         <div className="TerminalGCS">
-            <div className="w-1/2 bg-black h-full w-full">
-                <div className="overflow-y-auto max-h-full w-full">
-                    {terminalOutput.map((commnand, idx) => (
-                    <div className="text-white" key={idx}>
-                    {terminalOutput[idx]}
-                    </div>
+            <div className="TerminalChat" ref={TerminalChatRef}>
+                <ul>
+                    {messages.map((message, index) => (
+                        <li key={index}>{message.content}</li>
                     ))}
-                </div>
-                <div className="flex">
-                    <span className="text-white pr-2">$</span>
-                    <input type="text"
-                           value={inputCommand}
-                           onChange={(e) => setInputCommand(e.target.value)}
-                           onKeyDown={(e) => {
-                               if (e.key === 'Enter') {
-                                   handleCommand(inputCommand);
-                                   setInputCommand("");
-                               }
-                           }}
-                           className="w-full bg-transparent text-white border-none focus:outline-none"
-                    />
-                </div>
+                </ul>
+            </div>
+            <div className="InputBox">
+                <span className="text-white pr-2">$</span>
+                <input type="text"
+                       value={inputCommand}
+                       onChange={(e) => setInputCommand(e.target.value)}
+                       onKeyDown={(e) => {
+                           if (e.key === 'Enter') {
+                               handleCommand(inputCommand);
+                               setInputCommand("");
+                           }
+                       }}
+                       className="w-full bg-transparent text-white border-none focus:outline-none"
+                />
             </div>
         </div>
     );
