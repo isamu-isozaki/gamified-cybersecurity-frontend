@@ -42,10 +42,9 @@ export function sendCommand(command) {
         try {
             console.log("dispatched command")
             console.log(command)
-            const {payload} = await postCommand(command)
+            const {terminalOutput} = await postCommand(command)
             console.log("got output")
             console.log(payload)
-            const { terminalOutput } = payload
             dispatch({ type: SEND_COMMAND_SUCCESS, payload: {terminalOutput, command}})
         } catch(e) {
             console.log(e)
