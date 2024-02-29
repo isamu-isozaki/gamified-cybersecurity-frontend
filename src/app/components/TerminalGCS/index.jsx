@@ -37,7 +37,7 @@ function TerminalGCS({socket}) {
             setMessages((curr) => [...curr, {
                 id: ulid(),
                 content: `> ${result}`,
-                type: 'USER'
+                type: 'SERVER'
             }]);
             console.log(terminalOutput);
         }
