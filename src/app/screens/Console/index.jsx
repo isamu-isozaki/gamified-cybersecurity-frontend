@@ -17,8 +17,8 @@ import { Progress } from "@/components/ui/progress";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Flag, Network, Settings, SendHorizonal } from "lucide-react";
-import { getBackendUrl } from '../../../lib/utils';
+import { Flag, Network, Settings, SendHorizonal, Loader2 } from "lucide-react";
+import { getBackendUrl } from '@/lib/utils';
 import { io } from 'socket.io-client';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -28,9 +28,33 @@ const socket = io(URL);
 
 function Console() {
     const { labid } = useParams();
+    const navigate = useNavigate();
     const [chatButtonImage, setChatButtonImage] = useState(sw2EyeImage)
     const [chatWidth, setChatWidth] = useState('30%');
     const [terminalWidth, setTerminalWidth] = useState('70%');
+    const [lab, setLab] = useState(null);
+
+    useEffect(() => {
+        setLab(null);
+
+        fetch(getBackendUrl(`/v1/labs/${labid}/start`), {method: "POST"}).then(async (response) => {
+            if (response.ok) {
+                return response.json();
+            }
+            else {
+                throw new Error(await response.json());
+            }
+        }).then((lab) => {
+            setLab(lab.lab);
+        }).catch((error) => {
+            console.error(error);
+            navigate('/');
+        });
+
+        return () => {
+            fetch(getBackendUrl(`/v1/labs/${labid}/stop`), {method: "POST"});
+        }
+    }, [])
 
     const toggleChatWidth = () => {
         if (chatWidth === '0%') {
@@ -45,19 +69,17 @@ function Console() {
     };
 
     return (
-        <>
-            <div className="Console">
-                <TitleBar />
+        lab ? <div className="Console">
+                <TitleBar name={lab.name} flags={lab.flags} initialCompletedFlags={lab.completedFlags} />
                 <div className="ContainerContainer">
                     <ChatContainer chatWidth={chatWidth}/>
                     <TerminalContainer terminalWidth={terminalWidth} chatButtonImage={chatButtonImage} toggleChatWidth={toggleChatWidth} socket={socket}/>
                 </div>
-            </div>
-        </>
+            </div> : <span>Loading...</span>
     );
 }
 
-function FlagInput({onSubmit}) {
+function FlagInput({onSubmit, isSubmitting}) {
     const [input, setInput] = useState("");
     
     function handleChange(e) {
@@ -79,7 +101,7 @@ function FlagInput({onSubmit}) {
         <PopoverContent>
             <div className="flex w-full max-w-sm items-center space-x-2 space-x-reverse">
                 <Button onClick={handleSubmit} variant="ghost" size="icon">
-                    <SendHorizonal />
+                    {isSubmitting ? <Loader2 className="animate-spin" /> : <SendHorizonal />}
                 </Button>
                 <Input value={input} onInput={handleChange} />
             </div>
@@ -113,7 +135,7 @@ function MachineControl() {
                 throw new Error(await response.json());
             }
         }).then((machineList) => {
-            setMachines(machineList.payload);
+            setMachines(machineList);
         }).catch((error) => {
             console.error(error);
         }).finally(() => {
@@ -175,7 +197,6 @@ function LabSettings({onSubmit}) {
     }
 
     function quitLab() {
-        //TODO: save progress & shutdown container
         navigate("/");
     }
 
@@ -204,32 +225,41 @@ function LabSettings({onSubmit}) {
     )
 }
 
-function TitleBar() {
-    const [stage, setStage] = useState(0);
-    const stages = [
-        "egg",
-        "critter" 
-    ];
-
-    function toggleFlagInput() {
-        setFlagInputVisible((flagInputVisible) => !flagInputVisible);
-    }
+function TitleBar({ flags, name, initialCompletedFlags }) {
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [completedFlags, setCompletedFlags] = useState(initialCompletedFlags);
 
     function sendFlag(input) {
-        if (input.trim() === stages[stage])
-        {
-            setStage((stage) => stage + 1);
-        }        
+        setIsSubmitting(true);
+        fetch(getBackendUrl(`/v1/labs/${name}/submit`), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ flag: input })
+        }).then(async (response) => {
+            if (response.ok) {
+                return response.json();
+            }
+            else {
+                throw new Error(await response.json());
+            }
+        }).then((response) => {
+            setCompletedFlags(response.completedFlags);
+
+        }).catch((error) => {
+            console.error(error);
+        }).finally(() => setIsSubmitting(false));
     }
 
     return (
         <div className="TitleBar flex flex-row items-center">
-            <div className="basis-1/4"><Progress value={(stage / Object.keys(stages).length) * 100}/></div>
+            <div className="basis-1/4"><Progress value={(completedFlags / flags) * 100}/></div>
             <div className="basis-1/2"><h3> H.E.I.S.E.N.B.E.R.G. </h3></div>
             <div className="basis-1/4 flex flex-row-reverse">
                 <LabSettings />
                 <MachineControl />
-                <FlagInput onSubmit={sendFlag} />
+                <FlagInput isSubmitting={isSubmitting} onSubmit={sendFlag} />
             </div>
         </div>
     );

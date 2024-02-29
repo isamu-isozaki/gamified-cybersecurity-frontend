@@ -1,52 +1,54 @@
 import './LabSelect.css'
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from 'prop-types';
-import {connect} from "react-redux";
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
-
-const labList = [
-    {
-        title: 'Introduction',
-        machineCount: 3,
-        difficulty: 1,
-        id: 0,
-    },
-    {
-        title: 'Crazy Challenge',
-        machineCount: 10,
-        difficulty: 3,
-        id: 1,
-    },
-    {
-        title: 'Ultra Hard',
-        machineCount: 9999,
-        difficulty: 5,
-        id: 2,
-    }
-]
+import { getBackendUrl } from '@/lib/utils';
 
 function LabSelectContainer() {
+
+    const [labs, setLabs] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    
+    useEffect(() => {
+        setIsLoading(true);
+
+        fetch(getBackendUrl("/v1/labs")).then(async (response) => {
+            if (response.ok) {
+                return response.json();
+            }
+            else {
+                throw new Error(await response.json());
+            }
+        }).then((labs) => {
+            setLabs(labs);
+        }).catch((error) => {
+            console.error(error);
+        }).finally(() => {
+            setIsLoading(false);
+        });
+    }, [])
+
     return (
         <div className="LabSelectContainer">
-            {labList.map((labInfo, index) => (
-                <LabListing labInfo={labInfo}/>
+            {isLoading ? <span>Loading...</span> : labs.map((labInfo) => (
+                <LabListing key={labInfo.name} labInfo={labInfo}/>
             ))}
         </div>
     );
 }
 
 function LabListing({labInfo}) {
-    const {title, machineCount, difficulty, id} = labInfo;
+    const {name, difficulty_rating, number_of_machines} = labInfo;
 
     return (
         <div className= "LabListing">
-            <h1 className={"w-2/5"}>{title}</h1>
-            <h1 className={"w-1/5"} >{machineCount}</h1>
-            <h1 className={"w-1/5"}>{difficulty}</h1>
+            <h1 className={"w-2/5"}>{name}</h1>
+            <h1 className={"w-1/5"} >{number_of_machines}</h1>
+            <h1 className={"w-1/5"}>{difficulty_rating}</h1>
             <Button asChild className={"font-extrabold"}>
-                <Link to={`/${id}`}>Start</Link>
+                <Link to={`/${name}`}>Start</Link>
             </Button>
         </div>
     );
