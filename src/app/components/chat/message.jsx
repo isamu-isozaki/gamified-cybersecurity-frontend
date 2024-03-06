@@ -1,17 +1,39 @@
+import { cn } from "@/lib/utils";
 import { DateTime } from "luxon";
 import { decodeTime } from "ulidx";
 
 function Message({ id, content, type }) {
-    const timestamp = DateTime.fromMillis(decodeTime(id)).toLocaleString(DateTime.TIME_SIMPLE);
+  const timestamp = DateTime.fromMillis(decodeTime(id)).toLocaleString(
+    DateTime.TIME_SIMPLE
+  );
 
-    
-
-    return(
-        <div className={`flex ${type == "GPT" ? "flex-row" : "flex-row-reverse"} min-w-0 max-w-full items-center gap-3 p-2`}>
-            <span className="whitespace-nowrap text-muted-foreground text-gray-100">{timestamp}</span>
-            <span className={`whitespace-normal text-left text-white px-4 py-2 rounded ${type == "GPT" ? "bg-gray-950" : "bg-gray-500"}`}>{content}</span>
-        </div>
-    )
+  return (
+    <div
+      className={cn(
+        "flex min-w-0 max-w-full p-2",
+        type === "GPT" ? "justify-start" : "justify-end"
+      )}
+    >
+      <div
+        className={cn(
+          "flex flex-col gap-1 w-fit group/message",
+          type === "GPT" ? "items-start" : "items-end"
+        )}
+      >
+        <span
+          className={cn(
+            "whitespace-normal text-left text-white px-4 py-2 rounded",
+            type === "GPT" ? "bg-accent" : "bg-neutral-600"
+          )}
+        >
+          {content}
+        </span>
+        <span className="whitespace-nowrap text-muted-foreground text-neutral-300 text-xs opacity-0 group-hover/message:opacity-100 transition-opacity">
+          {timestamp}
+        </span>
+      </div>
+    </div>
+  );
 }
 
 export default Message;

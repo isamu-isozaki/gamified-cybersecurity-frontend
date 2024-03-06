@@ -1,24 +1,17 @@
-/**
- * Author: Isamu Isozaki
- * Root of react app
- */
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './app/styles/globals.css';
-import './index.css';
-import App from './App';
-import { Provider } from 'react-redux'
-import * as serviceWorker from './serviceWorker';
-import store from './app/store';
+import React from "react";
+import ReactDOM from "react-dom";
+import "./app/styles/globals.css";
+import App from "./App";
+import * as serviceWorker from "./serviceWorker";
+import { Toaster } from "@/components/ui/sonner";
 
 // eslint-disable-next-line react/no-deprecated
 ReactDOM.render(
   <React.StrictMode>
-      <Provider store={store}>
-        <App />
-      </Provider>
+    <App />
+    <Toaster position="bottom-right" richColors closeButton expand />
   </React.StrictMode>,
-  document.getElementById('root')
+  document.getElementById("root")
 );
 
 // If you want your app to work offline and load faster, you can change
