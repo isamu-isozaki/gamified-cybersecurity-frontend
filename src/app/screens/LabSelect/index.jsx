@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { getBackendUrl } from '@/lib/utils';
 import { DataTable, DataTableColumnHeader } from '@/components/ui/data-table';
+import { Menu } from 'lucide-react';
 
 function LabSelectContainer() {
     const [labs, setLabs] = useState([]);
@@ -73,43 +74,15 @@ function LabSelectContainer() {
     }, [])
 
     return (
-        <div>
-            <DataTable className="LabTable" columns={columns} data={labs} />
+        <div className="flex flex-col p-8">
+            <div className="flex flex-row justify-between">
+                <Menu color='white' size={40} />
+                <h1 className='text-xl text-white font-extrabold'>Hello Devin</h1>
+            </div>
+            <DataTable className="LabTable grow m-8" columns={columns} data={labs} />
         </div>
     );
 }
 
-function LabListing({labInfo}) {
-    const {name, difficulty_rating, number_of_machines} = labInfo;
-
-    return (
-        <div className= "LabListing">
-            <h1 className={"w-2/5"}>{name}</h1>
-            <h1 className={"w-1/5"} >{number_of_machines}</h1>
-            <h1 className={"w-1/5"}>{difficulty_rating}</h1>
-            <Button asChild className={"font-extrabold"}>
-                <Link to={`/${name}`}>Start</Link>
-            </Button>
-        </div>
-    );
-}
-
-LabSelectContainer.propTypes = {
-    labList: PropTypes.arrayOf(
-        PropTypes.shape({
-            title: PropTypes.string,
-            machineCount: PropTypes.number,
-            difficulty: PropTypes.number,
-        })
-    ),
-}
-
-LabListing.propTypes = {
-    LabInfo: PropTypes.shape({
-        title: PropTypes.string,
-        machineCount: PropTypes.number,
-        difficulty: PropTypes.number,
-    }),
-}
 
 export default (LabSelectContainer);
