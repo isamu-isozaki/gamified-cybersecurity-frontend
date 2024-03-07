@@ -1,5 +1,3 @@
-import './LabSelect.css'
-
 import React, { useState, useEffect } from "react";
 import PropTypes from 'prop-types';
 import { Button } from '@/components/ui/button';
@@ -17,7 +15,7 @@ function LabSelectContainer() {
             accessorKey: "name",
             header: ({column}) => {
                 return (
-                    <DataTableColumnHeader column={column} title="Lab" className="text-white" />
+                    <DataTableColumnHeader column={column} title="Lab" className="text-neutral-200" />
                 )
             },
             cell: ({row}) =>  <div className="font-medium">{row.getValue("name")}</div>
@@ -26,7 +24,7 @@ function LabSelectContainer() {
             accessorKey: "number_of_machines",
             header: ({column}) => {
                 return (
-                    <DataTableColumnHeader column={column} title="Number of Machines" className="text-white"/>
+                    <DataTableColumnHeader column={column} title="Number of Machines" className="text-neutral-200"/>
                 )
             },
             cell: ({row}) =>  <div className="font-medium">{row.getValue("number_of_machines")}</div>
@@ -35,10 +33,15 @@ function LabSelectContainer() {
             accessorKey: "difficulty_rating",
             header: ({column}) => {
                 return (
-                    <DataTableColumnHeader column={column} title="Difficulty" className="text-white"/>
+                    <DataTableColumnHeader column={column} title="Difficulty" className="text-neutral-200"/>
                 )
             },
-            cell: ({row}) =>  <div className="font-medium">{row.getValue("difficulty_rating")}</div>
+            cell: ({row}) => {
+                const baseClass = "font-extrabold ";
+                const difficultColor = row.getValue("difficulty_rating") > 3 ? "text-red-600" : row.getValue("difficulty_rating") > 1 ? "text-yellow-600" : "text-green-600";
+                return (<div className={baseClass + difficultColor}>{row.getValue("difficulty_rating")}</div>
+                )
+            }
         },
         {
             accessorKey: "name",
@@ -46,7 +49,7 @@ function LabSelectContainer() {
             cell: ({row}) => {
                 return (
                     <div className="text-right font-medium">
-                        <Button asChild className="font-extrabold">
+                        <Button asChild className="font-extrabold" variant="accentedFilled">
                             <Link to={`/${row.getValue("name")}`}>Start</Link>
                         </Button>
                     </div>
@@ -77,9 +80,9 @@ function LabSelectContainer() {
         <div className="flex flex-col p-8">
             <div className="flex flex-row justify-between">
                 <Menu color='white' size={40} />
-                <h1 className='text-xl text-white font-extrabold'>Hello Devin</h1>
+                <h1 className='text-xl text-neutral-200 font-extrabold'>Hello Devin</h1>
             </div>
-            <DataTable className="LabTable grow m-8" columns={columns} data={labs} />
+            {isLoading ? <span>Loading...</span> : <DataTable className="bg-neutral-900 text-neutral-200 grow m-8" columns={columns} data={labs} />}
         </div>
     );
 }
