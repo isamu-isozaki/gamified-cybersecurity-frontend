@@ -15,15 +15,120 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Loader2, Network } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Loader2, Network, Power, PowerOff, RotateCcw } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { getBackendUrl } from "@/lib/utils";
+import { toast } from "sonner";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 
-function MachineRow({ Image, State }) {
+function MachineRowActionButton({ isLoading, children, title, ...props }) {
+  return <Tooltip defaultOpen={false}>
+    <TooltipTrigger asChild>
+        <Button {...props}>
+          {isLoading ? <Loader2 className="animate-spin" /> : children}
+        </Button>
+    </TooltipTrigger>
+    <TooltipContent>
+      {`${title} machine`}
+    </TooltipContent>
+  </Tooltip>
+}
+
+function MachineRow({ updateMachine, id, name, state, disabled }) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isRestarting, setIsRestarting] = useState(false);
+  
+  const handleStop = () => {
+    setIsSubmitting(true);
+
+    fetch(getBackendUrl(`/v1/docker/${id}/stop`), {
+      method: "POST",
+    }).then(async (response) => {
+      if (response.ok) {
+        return response.json();
+      } else {
+        throw new Error(await response.json());
+      }
+    })
+    .then((response) => {
+      toast.success(response.message);
+      updateMachine(response.data);
+    })
+    .catch((error) => {
+      console.error(error);
+    }).finally(() => {
+      setIsSubmitting(false);
+    });
+  }
+
+  const handleRestart = () => {
+    setIsSubmitting(true);
+    setIsRestarting(true);
+
+    fetch(getBackendUrl(`/v1/docker/${id}/restart`), {
+      method: "POST",
+    }).then(async (response) => {
+      if (response.ok) {
+        return response.json();
+      } else {
+        throw new Error(await response.json());
+      }
+    })
+    .then((response) => {
+      toast.success(response.message);
+      updateMachine(response.data);
+    })
+    .catch((error) => {
+      console.error(error);
+    }).finally(() => {
+      setIsSubmitting(false);
+      setIsRestarting(false);
+    });
+  }
+
+  const handleStart = () => {
+    setIsSubmitting(true);
+
+    fetch(getBackendUrl(`/v1/docker/${id}/start`), {
+      method: "POST",
+    }).then(async (response) => {
+      if (response.ok) {
+        return response.json();
+      } else {
+        throw new Error(await response.json());
+      }
+    })
+    .then((response) => {
+      toast.success(response.message);
+      updateMachine(response.data);
+    })
+    .catch((error) => {
+      console.error(error);
+    }).finally(() => {
+      setIsSubmitting(false);
+    });
+  }
+
+  const isRunning = useMemo(() => state === 'running', [state]);
+
   return (
-    <TableRow>
-      <TableCell className="font-medium">{Image}</TableCell>
-      <TableCell>{State}</TableCell>
+    <TableRow className="text-neutral-100 hover:bg-transparent">
+      <TableCell className="font-medium">{name}</TableCell>
+      <TableCell>{state}</TableCell>
+      <TableCell className="flex items-center justify-center gap-3">
+        {isRunning ? <>
+            <MachineRowActionButton variant={'accented'} size="icon" disabled={isSubmitting || disabled} isLoading={isSubmitting && isRestarting} onClick={handleRestart} title="Restart">
+              <RotateCcw />
+            </MachineRowActionButton>
+            <MachineRowActionButton variant={'destructive'} size="icon" disabled={isSubmitting || disabled} isLoading={isSubmitting && !isRestarting} onClick={handleStop} title="Stop">
+              <PowerOff />
+            </MachineRowActionButton>
+          </> :
+          <MachineRowActionButton variant={'accented'} size="icon" disabled={isSubmitting || disabled} isLoading={isSubmitting} onClick={handleStart} title="Start">
+            <Power />
+          </MachineRowActionButton>
+        }
+      </TableCell>
     </TableRow>
   );
 }
@@ -33,9 +138,11 @@ function MachineControl() {
   const [isRestarting, setIsRestarting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  const getMachinesList = () => {
-    setIsLoading(true);
-    fetch(getBackendUrl("/v1/command/dockerlist"))
+  const getMachinesList = (skipLoading) => {
+    if(!skipLoading) {
+      setIsLoading(true);
+    }
+    fetch(getBackendUrl("/v1/docker"))
       .then(async (response) => {
         if (response.ok) {
           return response.json();
@@ -60,13 +167,35 @@ function MachineControl() {
 
   const rebootMachines = () => {
     setIsRestarting(true);
-    fetch(getBackendUrl("/v1/command/dockerrestart"), {
+    fetch(getBackendUrl("/v1/docker/restart"), {
       method: "POST",
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        ids: machines.map(({ id }) => id)
+      })
+    }).then(async (response) => {
+      if (response.ok) {
+        return response.json();
+      } else {
+        throw new Error(await response.json());
+      }
+    })
+    .then((response) => {
+      toast.success(response.message);
+      setMachines(response.data);
+    })
+    .catch((error) => {
+      console.error(error);
     }).finally(() => {
-      getMachinesList();
       setIsRestarting(false);
     });
   };
+
+  const handleUpdateMachine = (machine) => {
+    setMachines(curr => curr.map(m => m.id === machine.id ? machine : m))
+  }
 
   return (
     <Dialog>
@@ -91,15 +220,16 @@ function MachineControl() {
             <Table>
               <TableHeader className="border-neutral-400">
                 <TableRow className="text-neutral-400 hover:bg-transparent">
-                  <TableHead className="w-2/3 text-inherit">
+                  <TableHead className="w-2/4 text-inherit">
                     Machine Name
                   </TableHead>
-                  <TableHead className="w-1/3 text-inherit">Status</TableHead>
+                  <TableHead className="w-1/4 text-inherit">Status</TableHead>
+                  <TableHead className="w-1/4 text-inherit">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {machines.map((machine) => (
-                  <MachineRow {...machine} />
+                  <MachineRow key={machine.id} disabled={isRestarting} updateMachine={handleUpdateMachine} {...machine} />
                 ))}
               </TableBody>
             </Table>
@@ -111,7 +241,7 @@ function MachineControl() {
         </div>
         <div className="flex flex-row grow justify-center space-x-2">
           <Button
-            variant="accentedFilled"
+            variant="accented"
             className="w-1/3 min-w-fit"
             onClick={rebootMachines}
             disabled={isRestarting}

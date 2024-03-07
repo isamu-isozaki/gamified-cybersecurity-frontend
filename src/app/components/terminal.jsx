@@ -1,14 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
 
 import { ScrollArea } from "./ui/scroll-area";
+import { cn } from "@/lib/utils";
+import { strip } from "ansicolor";
 
 function Terminal({ socket }) {
-  const [terminalOutput, setTerminalOutput] = useState([
-    {
-      type: "output",
-      content: "$",
-    },
-  ]);
+  const [terminalOutput, setTerminalOutput] = useState([]);
   const [command, setCommand] = useState("");
   const [scrollAreaHeight, setScrollAreaHeight] = useState(0);
   const scrollContainerRef = useRef();
@@ -23,10 +20,6 @@ function Terminal({ socket }) {
           .concat({
             type: "output",
             content: `${last.content} ${cmd}`,
-          })
-          .concat({
-            type: "output",
-            content: "",
           });
       }
 
@@ -49,43 +42,51 @@ function Terminal({ socket }) {
 
   const focusInput = () => terminalInputRef?.current?.focus();
 
-  const handleCommandExit = () =>
+  const handleDisconnect = (message) =>
     setTerminalOutput((curr) =>
       curr.concat({
-        type: "output",
-        content: "$",
+        type: "error",
+        content: message,
       })
     );
 
-  const handleCommandError = (error) => {};
+  const handleCommandOutput = (result) => {
+    console.log(result);
+    setTerminalOutput((curr) =>
+      curr.concat({
+        type: "output",
+        content: strip(result),
+      })
+    );
+  };
 
   useEffect(() => {
-    if (scrollContainerRef.current) {
-      setScrollAreaHeight(scrollContainerRef.current.clientHeight);
+    if (!scrollContainerRef.current) {
+      return;
     }
-  }, [scrollContainerRef.current]);
+
+    const resizeObserver = new ResizeObserver(() => {
+      setScrollAreaHeight(scrollContainerRef.current.clientHeight);
+    });
+    resizeObserver.observe(scrollContainerRef.current);
+
+    return () => resizeObserver.disconnect();
+  }, []);
 
   useEffect(() => {
-    const handleCommandOutput = (result) => {
-      console.log(result);
-      setTerminalOutput((curr) =>
-        curr.concat({
-          type: "output",
-          content: result,
-        })
-      );
-    };
-    socket.on("commandResult", handleCommandOutput);
-    socket.on("commandError", handleCommandError);
-    socket.on("commandExit", handleCommandExit);
+    socket.on("commandOutput", handleCommandOutput);
+    socket.on("sshDisconnect", handleDisconnect);
 
-    return () => socket.off("commandResult", handleCommandOutput);
+    return () => {
+      socket.off("commandOutput", handleCommandOutput);
+      socket.off("sshDisconnect", handleDisconnect);
+    };
   }, [socket]);
 
   return (
     <div
       ref={scrollContainerRef}
-      className="w-full flex-1 bg-neutral-950 cursor-pointer"
+      className="w-full flex-1 bg-neutral-950 cursor-text"
       onClick={focusInput}
     >
       <ScrollArea
@@ -97,7 +98,7 @@ function Terminal({ socket }) {
         <div className="w-full p-3 text-lg text-wrap break-all flex flex-col">
           {terminalOutput.map((output, i) => (
             <div key={i} className="inline">
-              <span className="text-white whitespace-pre-line">
+              <span className={cn("text-white whitespace-pre-line", output.type === 'error' && 'text-destructive')}>
                 {output.content}
               </span>
               {i === terminalOutput.length - 1 && (
@@ -117,6 +118,16 @@ function Terminal({ socket }) {
               )}
             </div>
           ))}
+          {terminalOutput?.length <= 0 && <input
+                    ref={terminalInputRef}
+                    autoFocus
+                    value={command}
+                    onChange={handleInput}
+                    onKeyDown={handleEnter}
+                    className={
+                      "!bg-transparent !border-none text-white outline-none flex-1"
+                    }
+                  />}
         </div>
       </ScrollArea>
     </div>

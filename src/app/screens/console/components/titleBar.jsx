@@ -1,11 +1,12 @@
 import { Progress } from "@/components/ui/progress";
 import FlagInput from "./flagInput";
 import MachineControl from "./machineControl";
-import Settings from "./Settings";
+import Settings from "./settings";
 import PropTypes from "prop-types";
 import { useState } from "react";
 import { toast } from "sonner";
 import { getBackendUrl } from "@/lib/utils";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 
 function TitleBar({ flags, name, initialCompletedFlags }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -30,7 +31,7 @@ function TitleBar({ flags, name, initialCompletedFlags }) {
         })
         .then((response) => {
           setCompletedFlags(response.completedFlags);
-          toast.success("Correct!");
+          toast.success(response.message);
           res(true);
         })
         .catch((error) => {
@@ -45,17 +46,31 @@ function TitleBar({ flags, name, initialCompletedFlags }) {
   return (
     <div className="w-full bg-neutral-950 flex flex-row items-center py-3 px-3">
       <div className="basis-1/4">
-        <Progress value={(completedFlags / flags) * 100} />
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Progress className="w-full" value={(completedFlags / flags) * 100} />
+          </TooltipTrigger>
+          <TooltipContent>
+            <p className="font-bold text-lg">{Math.round((completedFlags / flags) * 100)}%</p>
+          </TooltipContent>
+        </Tooltip>
       </div>
-      <div className="basis-1/2">
-        <h3 className="text-white text-center font-bold text-2xl">
-          H.E.I.S.E.N.B.E.R.G.
-        </h3>
+      <div className="flex justify-center items-center basis-1/2">
+        <Tooltip>
+          <TooltipTrigger>
+            <h3 className="text-white text-center font-bold text-2xl">
+              H.E.I.S.E.N.B.E.R.G.
+            </h3>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Hosted Education & Instruction System for Emulated Networks & Breach Exercises with Real-time Guidance</p>
+          </TooltipContent>
+        </Tooltip>
       </div>
       <div className="basis-1/4 flex justify-end gap-3">
         <FlagInput isSubmitting={isSubmitting} onSubmit={sendFlag} />
         <MachineControl />
-        <Settings />
+        <Settings labId={name} />
       </div>
     </div>
   );

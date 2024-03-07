@@ -9,7 +9,7 @@ const router = createBrowserRouter([
     element: <LabSelectContainer />,
   },
   {
-    path: "/:labid",
+    path: "/:labId",
     element: <Console />,
   },
 ]);

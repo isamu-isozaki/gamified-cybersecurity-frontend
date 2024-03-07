@@ -20,10 +20,17 @@ function ChatWindow({ socket }) {
   const scrollContainerRef = useRef();
 
   useEffect(() => {
-    if (scrollContainerRef.current) {
-      setScrollAreaHeight(scrollContainerRef.current.clientHeight);
+    if (!scrollContainerRef.current) {
+      return;
     }
-  }, [scrollContainerRef.current]);
+
+    const resizeObserver = new ResizeObserver(() => {
+      setScrollAreaHeight(scrollContainerRef.current.clientHeight);
+    });
+    resizeObserver.observe(scrollContainerRef.current);
+
+    return () => resizeObserver.disconnect();
+  }, []);
 
   const handleSubmit = () => {
     if (input.trim() === "") return;
