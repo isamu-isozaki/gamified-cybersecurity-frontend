@@ -1,24 +1,28 @@
-import { Progress } from "@/components/ui/progress";
-import FlagInput from "./flagInput";
-import MachineControl from "./machineControl";
-import Settings from "./settings";
-import PropTypes from "prop-types";
-import { useState } from "react";
-import { toast } from "sonner";
-import { getBackendUrl } from "@/lib/utils";
-import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
+import { Progress } from '@/components/ui/progress';
+import { FlagInput } from '../components/flagInput';
+import { MachineControl } from '../components/machineControl';
+import { Settings } from '../components/settings';
+import { useMemo, useState } from 'react';
+import { toast } from 'sonner';
+import { getBackendUrl } from '@/lib/utils';
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from '@/components/ui/tooltip';
+import PropTypes from 'prop-types';
 
-function TitleBar({ flags, name, initialCompletedFlags }) {
+export const TitleBar = ({ flags, name, initialCompletedFlags }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [completedFlags, setCompletedFlags] = useState(initialCompletedFlags);
 
-  function sendFlag(input) {
-    return new Promise((res, rej) => {
+  const sendFlag = (input) => {
+    return new Promise((res) => {
       setIsSubmitting(true);
       fetch(getBackendUrl(`/v1/labs/${name}/submit`), {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({ flag: input }),
       })
@@ -35,23 +39,28 @@ function TitleBar({ flags, name, initialCompletedFlags }) {
           res(true);
         })
         .catch((error) => {
-          toast.error("Incorrect flag");
+          toast.error('Incorrect flag');
           console.error(JSON.stringify(error));
           res(false);
         })
         .finally(() => setIsSubmitting(false));
     });
-  }
+  };
+
+  const flagPercentage = useMemo(
+    () => (completedFlags / flags) * 100,
+    [completedFlags, flags]
+  );
 
   return (
     <div className="w-full bg-neutral-950 flex flex-row items-center py-3 px-3">
       <div className="basis-1/4">
         <Tooltip>
           <TooltipTrigger asChild>
-            <Progress className="w-full" value={(completedFlags / flags) * 100} />
+            <Progress className="w-full" value={flagPercentage} />
           </TooltipTrigger>
           <TooltipContent>
-            <p className="font-bold text-lg">{Math.round((completedFlags / flags) * 100)}%</p>
+            <p className="font-bold text-lg">{Math.round(flagPercentage)}%</p>
           </TooltipContent>
         </Tooltip>
       </div>
@@ -63,7 +72,10 @@ function TitleBar({ flags, name, initialCompletedFlags }) {
             </h3>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Hosted Education & Instruction System for Emulated Networks & Breach Exercises with Real-time Guidance</p>
+            <p>
+              Hosted Education & Instruction System for Emulated Networks &
+              Breach Exercises with Real-time Guidance
+            </p>
           </TooltipContent>
         </Tooltip>
       </div>
@@ -74,12 +86,10 @@ function TitleBar({ flags, name, initialCompletedFlags }) {
       </div>
     </div>
   );
-}
-
-TitleBar.propTypes = {
-  flags: PropTypes.number.isRequired,
-  name: PropTypes.string.isRequired,
-  initialCompletedFlags: PropTypes.number.isRequired,
 };
 
-export default TitleBar;
+TitleBar.propTypes = {
+  flags: PropTypes.number,
+  name: PropTypes.string,
+  initialCompletedFlags: PropTypes.number,
+};

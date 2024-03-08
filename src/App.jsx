@@ -1,21 +1,20 @@
-import React from "react";
-import Console from "./app/screens/console";
-import LabSelectContainer from "./app/screens/LabSelect";
-import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import { Lab } from '@/screens/lab';
+import { RouterProvider, createBrowserRouter } from 'react-router-dom';
+import LabSelectContainer from './app/screens/LabSelect';
 
 const router = createBrowserRouter([
   {
-    path: "/",
+    path: '/',
     element: <LabSelectContainer />,
   },
   {
-    path: "/:labId",
-    element: <Console />,
+    path: '/:labId',
+    element: <Lab />,
   },
 ]);
 
-function App() {
+const App = () => {
   return <RouterProvider router={router} />;
-}
+};
 
 export default App;

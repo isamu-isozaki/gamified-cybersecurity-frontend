@@ -1,38 +1,40 @@
-import { Button } from "@/components/ui/button";
+import { Loader } from '@/components/loaders/loader';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { Input } from "@/components/ui/input";
-import { Flag, Loader2, SendHorizonal } from "lucide-react";
-import { useRef, useState } from "react";
+} from '@/components/ui/popover';
+import { Flag, SendHorizonal } from 'lucide-react';
+import PropTypes from 'prop-types';
+import { useRef, useState } from 'react';
 
-function FlagInput({ onSubmit, isSubmitting }) {
+export const FlagInput = ({ onSubmit, isSubmitting }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState('');
   const inputRef = useRef(null);
 
-  function handleChange(e) {
+  const handleChange = (e) => {
     setInput(e.target.value);
-  }
+  };
 
-  async function handleSubmit() {
+  const handleSubmit = async () => {
     const shouldClose = await onSubmit(input);
     if (shouldClose) {
-      setInput("");
+      setInput('');
       setIsOpen(false);
     } else {
       inputRef?.current?.focus();
     }
-  }
+  };
 
-  function handleEnter(event) {
-    if (event.key === "Enter") {
+  const handleEnter = (event) => {
+    if (event.key === 'Enter') {
       event.preventDefault();
       handleSubmit();
     }
-  }
+  };
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
@@ -61,18 +63,17 @@ function FlagInput({ onSubmit, isSubmitting }) {
             variant="accented"
             size="icon"
             className="min-w-10"
-            disabled={isSubmitting || input.trim() === ""}
+            disabled={isSubmitting || input.trim() === ''}
           >
-            {isSubmitting ? (
-              <Loader2 className="animate-spin" />
-            ) : (
-              <SendHorizonal />
-            )}
+            {isSubmitting ? <Loader /> : <SendHorizonal />}
           </Button>
         </div>
       </PopoverContent>
     </Popover>
   );
-}
+};
 
-export default FlagInput;
+FlagInput.propTypes = {
+  onSubmit: PropTypes.func.isRequired,
+  isSubmitting: PropTypes.bool.isRequired,
+};
