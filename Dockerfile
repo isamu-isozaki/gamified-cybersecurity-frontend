@@ -5,8 +5,8 @@ COPY . .
 
 ENV BACKEND_HOST backend
 
-RUN npm install
-RUN npm run build
+RUN yarn install
+RUN yarn build
 
 EXPOSE 3000
 CMD ["npm", "run", "serve"]
