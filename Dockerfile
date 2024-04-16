@@ -1,4 +1,4 @@
-FROM node:16-bookworm
+FROM node:18-bookworm
 
 WORKDIR /usr/src/app
 COPY . .
